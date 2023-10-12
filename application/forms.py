@@ -4,17 +4,28 @@ from wtforms import StringField, PasswordField, SubmitField, EmailField, Integer
 from wtforms.validators import DataRequired, Length, EqualTo, Email
 
 class LoginForm(FlaskForm):
-    username = StringField("Username", validators=)
-    password = PasswordField("")
+    username = StringField("Username", validators=[DataRequired(), Length(min=8, max=12)])
+    password = PasswordField("Password", validators=[DataRequired(), Length(min=8)])
+    submit = SubmitField("Sign Up")
 
 class SignUpForm(FlaskForm):
-    pass
+    username = StringField("Username", validators=[DataRequired(), Length(min = 8, max = 12)])
+    password = PasswordField("Password", validators=[DataRequired(), Length(min = 8)])
+    confirm_password = PasswordField("Confirm Password", validators=[DataRequired(), EqualTo("password", message = "Password must match!")])
+    submit = SubmitField("Sign Up")
 
 class EditProfile(FlaskForm):
-    pass
+    profile_picture =  StringField("Profile_picture")
+    username = StringField("Username")
+    nickname = StringField("Nickname")
+    bio = TextAreaField("Bio")
+    submit = SubmitField("Confirm")
 
-class CreateForm(FlaskForm):
-    pass
+class CreatePost(FlaskForm):
+    post = StringField("Post", validators=[DataRequired()])
+    caption = StringField("Caption")
+    submit = SubmitField("Post")
 
 class EditPost(FlaskForm):
-    pass
+    caption = StringField("Caption", validators=[DataRequired()])
+    submit = SubmitField("Confirm ")
