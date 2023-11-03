@@ -20,7 +20,9 @@ class SignUpForm(FlaskForm):
     submit              = SubmitField("sign up")
 
 class EditProfileForm(FlaskForm):
+    fullname            = StringField("full name", validators=[DataRequired(), Length(min=4, max=16)])
     username            = StringField("username", validators=[DataRequired(), Length(min=4, max=12), exists_username])
+    bio                 = StringField("bio", validators=[Length(max=120)])
     email               = EmailField("email", validators=[DataRequired(), Email(), exists_email])
     profile_pic         = FileField("profile picture", validators=[FileAllowed(["jpg", "png", "jpeg"])])
     password            = PasswordField("password", validators=[DataRequired()])
@@ -48,5 +50,5 @@ class CreatePostForm(FlaskForm):
     submit              = SubmitField("post")
 
 class EditPostForm(FlaskForm):
-    caption             = StringField("caption")
+    caption             = TextAreaField("caption")
     submit              = SubmitField("update post")

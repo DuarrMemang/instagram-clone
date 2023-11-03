@@ -1,6 +1,14 @@
-from application import db, app
+from application import app
+from dotenv import load_dotenv
+import os
 
-if __name__ == "__main__":
-    with app.app_context():
-        db.create_all()
-    app.run(debug=True)
+load_dotenv()
+
+def main():
+    PORT = os.environ.get('PORT_DEV')
+    DEBUG = os.environ.get('FLASK_DEBUG')
+    HOST = os.environ.get('HOST_DEV')
+    app.run(host=HOST, port=PORT, debug=DEBUG)
+    
+if __name__ == '__main__':
+    main()
