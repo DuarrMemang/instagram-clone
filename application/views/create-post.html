@@ -1,47 +1,28 @@
 {% extends 'layout.html' %}
 
 {% block content %}
-    <div class="">
-        <form action="" method="post">
+    <div class="form-box" style="border: 1px black solid;">
+        <h2>Create a new post</h2>
+        <form enctype="multipart/form-data" method="post">
             {{ form.hidden_tag() }}
-            <fieldset class="">
-                <div class="">
-                    <div class="">
-                        {{ form.post_pic.label(class="") }}
-    
-                        {% if form.post_pic.errors%}
-                            {{ form.post_pic(class="") }}
-                            <div class="">
-                                {% for error in form.post_pic.errors %}
-                                    <span>{{ error }}</span>
-                                {% endfor %}
-                            </div>
-                        {% else %}
-                            {{ form.post_pic(class=" ") }}
-                        {% endif %}
-                    </div>
-
-                    <div class="">
-                        {{ form.caption.label(class="") }}
-    
-                        {% if form.caption.errors%}
-                            {{ form.caption(class="") }}
-                            <div class="">
-                                {% for error in form.caption.errors %}
-                                    <span>{{ error }}</span>
-                                {% endfor %}
-                            </div>
-                        {% else %}
-                            {{ form.caption(class=" ") }}
-                        {% endif %}
-                    </div>
-                </div>
-            </fieldset>
-            <div class="">
-                {{ form.submit(class="btn btn-outline-info") }}
+            <div class="form-group">
+                {{ form.post_pic.label(class="form-control-label") }}
+                {{ form.post_pic(class="form-control-file") }}
+                {% for error in form.post_pic.errors %}
+                    <span class="text-danger">{{ error }}</span>
+                {% endfor %}
+            </div>
+            <div class="form-group">
+                {{ form.caption.label(class="form-control-label") }}
+                {{ form.caption(class="form-control") }}
+                {% for error in form.caption.errors %}
+                    <span class="text-danger">{{ error }}</span>
+                {% endfor %}
+            </div>
+            <div class="form-group">
+                {{ form.submit(class="btn btn-primary") }}
             </div>
         </form>
-
     </div>
 {% endblock content %}
 

@@ -9,7 +9,7 @@ from application.utils import save_image
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for('profile'))
+        return redirect(url_for('profile', username=current_user.username))
 
     form = LoginForm()
 
@@ -20,7 +20,7 @@ def login():
         user = User.query.filter_by(username=username).first()
         if user and password == user.password:
             login_user(user)
-            return redirect(url_for('profile'))
+            return redirect(url_for('profile', username=user.username))
         else:
             flash('Invalid username or password', 'error')
 
@@ -40,31 +40,35 @@ def logout():
 @app.route('/<string:username>')
 @login_required
 def profile(username):
-    return render_template('profile.html', title=f'{current_user.username} Profile')
+    return render_template('profile.html', title=f'{username} Profile')
 
-@app.route('/', methods=('GET', 'POST'))
+@app.route('/')
 @login_required
 def index():
-    form = CreatePostForm()
+    page = request.args.get('page', 1, type=int)
+    posts = Post.query.filter_by(author_id = current_user.id).order_by(Post.post_date.desc()).paginate(page=page, per_page=5)
+
+    return render_template('index.html', title='Home', posts=posts)
+
+@app.route('/signup', methods=["GET", "POST"])
+def signup():
+    if current_user.is_authenticated: 
+        return redirect(url_for('profile', username=current_user.username))
+    form = SignUpForm()
 
     if form.validate_on_submit():
-        post = Post(
-            author_id = current_user.id,
-            caption =form.caption.data
+        user = User(
+            fullname = form.fullname.data,
+            username = form.username.data,
+            email = form.email.data,
+            password = form.password.data
         )
-        post.photo = save_image(form.post_pic.data)
-        db.session.add(post)
+        db.session.add(user)
         db.session.commit()
-        flash('Your image has been posted ❤!', "success")
+        flash('Account created successfully!', 'success')
+        return redirect(url_for('login'))
 
-    page = request.args.get('page', 1, type=int)
-    posts = Post.query.filter_by(author_id = current_user.id).order_by(Post.post_date.desc()).paginate(page=page, per_page=3)
-    
-    return render_template('index.html', title='Home', form=form, posts=posts)
 
-@app.route('/signup')
-def signup():
-    form = SignUpForm()
     return render_template('signup.html', title="SignUp", form=form)
     
 @app.route('/about')
@@ -73,13 +77,34 @@ def about():
 
 @app.route('/forgotpassword')
 def forgotpassword():
+    if current_user.is_authenticated:
+        return redirect(url_for('profile', username=current_user.username))
     form = ForgotPasswordForm()
+
+    # if form.validate_on_submit:
+    #     email = form.email.data
+
     return render_template('forgot_password.html', title='ForgotPassword', form=form)
 
-@app.route('/editprofile')
+@app.route('/editprofile', methods=['GET', 'POST'])
 def editprofile():
     form = EditProfileForm()
-    return render_template('profile_edit.html', title='Edit Profile', form=form)
+
+    if form.validate_on_submit():
+        user = User(
+            profile = form.profile_pic.data,
+            fullname = form.fullname.data,
+            username = form.username.data,
+            email = form.email.data,
+            password = form.password.data
+        )
+        db.session.add(user)
+        db.session.commit()
+        flash('Account created successfully!', 'success')
+        return redirect(url_for('login'))
+
+
+    return render_template('edit-profile.html', title='Edit Profile', form=form)
 
 @app.route('/resetpassword')
 def resetpassword():
@@ -91,10 +116,25 @@ def verif():
     form = VerificationResetPasswordForm()
     return render_template('verif.html', title= 'Verification', form=form)
 
-@app.route('/createpost')
+@app.route('/createpost', methods=['GET', 'POST'])
 def createpost():
     form = CreatePostForm()
-    return render_template('create_post.html', title='Create Post', form=form)
+
+    if form.validate_on_submit():
+        post = Post(
+            author_id = current_user.id,
+            caption =form.caption.data
+        )
+        post.photo = save_image(form.post_pic.data)
+        db.session.add(post)
+        db.session.commit()
+        flash('Your image has been posted ❤!', "success")
+        page = request.args.get('page', 1, type=int)
+        posts = Post.query.filter_by(author_id = current_user.id).order_by(Post.post_date.desc()).paginate(page=page, per_page=5)
+
+        return render_template('index.html', posts=posts, form=form)
+
+    return render_template('create-post.html', title='Create Post', form=form)
 
 @app.route('/editpost')
 def editpost():
