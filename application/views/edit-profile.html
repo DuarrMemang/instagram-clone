@@ -2,9 +2,9 @@
 
 {% block content %}
     <div class="edit-profile-field">
-        <form action="" method="post">
+        <form action="" method="post" enctype="multipart/form-data">
             <div class="profile-photo">
-                <img src="{{ url_for('static', filename='images/profile' + (current_user.profile_pic if current_user.profile_pic != 'images/profile/default.jpg' else 'default.jpg')) }}" alt="Profile Photo">
+                <img src="{{ url_for('static', filename='images/profile' + current_user.profile_pic) }}" alt="Profile Photo">
                 <div class="">
                     {{ form.profile_pic.label(class="form-control-label") }}
                     {{ form.profile_pic(class="form-control-file") }}
@@ -55,36 +55,6 @@
                         </div>
                     {% else %}
                         {{ form.bio(class="form-control ") }}
-                    {% endif %}
-    
-                </div>
-                <div class="">
-                    {{ form.email.label(class="") }}
-    
-                    {% if form.email.errors%}
-                        {{ form.email(class="") }}
-                        <div class="">
-                            {% for error in form.email.errors %}
-                                <span>{{ error }}</span>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        {{ form.email(class="form-control ") }}
-                    {% endif %}
-    
-                </div>
-                <div class="">
-                    {{ form.password.label(class="") }}
-    
-                    {% if form.password.errors%}
-                        {{ form.password(class="") }}
-                        <div class="">
-                            {% for error in form.password.errors %}
-                                <span>{{ error }}</span>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        {{ form.password(class="form-control ") }}
                     {% endif %}
     
                 </div>

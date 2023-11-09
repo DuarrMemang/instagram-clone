@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm, RecaptchaField
-from flask_wtf.file import FileField, FileAllowed, FileRequired
+from flask_wtf.file import FileField, FileAllowed
 from wtforms import StringField, EmailField, SubmitField, PasswordField, TextAreaField
 from wtforms.validators import DataRequired, Length, Email, EqualTo
 
@@ -16,22 +16,22 @@ class SignUpForm(FlaskForm):
     fullname            = StringField("full name", validators=[DataRequired(), Length(min=4, max=16)])
     email               = EmailField("email", validators=[DataRequired(), Email(), exists_email])
     password            = PasswordField("password", validators=[DataRequired(), Length(min=8)])
-    confirm_password    = PasswordField("confirm_password", validators=[DataRequired(), Length(min=8), EqualTo("password")])
+    confirm_password    = PasswordField("confirm password", validators=[DataRequired(), Length(min=8), EqualTo("password")])
     submit              = SubmitField("sign up")
 
-class EditProfileForm(FlaskForm):
-    fullname            = StringField("full name", validators=[DataRequired(), Length(min=4, max=16)])
-    username            = StringField("username", validators=[DataRequired(), Length(min=4, max=12), exists_username])
-    bio                 = StringField("bio", validators=[Length(max=120)])
-    email               = EmailField("email", validators=[DataRequired(), Email(), exists_email])
-    profile_pic         = FileField("profile picture", validators=[FileAllowed(["jpg", "png", "jpeg"])])
-    password            = PasswordField("password", validators=[DataRequired()])
+class EditProfileForm(SignUpForm):
+    username            = StringField("username", validators=[DataRequired(), Length(min=4, max=12)])
+    password            = None
+    confirm_password    = None
+    email               = None
+    bio                 = StringField("bio")
+    profile_pic         = FileField("picture picture", validators=[FileAllowed(["jpg", "png", "jpeg"])])
     submit              = SubmitField("update profile")
 
 class ResetPasswordForm(FlaskForm):
     old_password        = PasswordField("old password", validators=[DataRequired(), Length(min=8)])
     new_password        = PasswordField("new password", validators=[DataRequired(), Length(min=8)])
-    confirm_new_password= PasswordField("confirm new password", validators=[DataRequired(), Length(min=8), EqualTo("new_password")])
+    confirm_new_password = PasswordField("confirm new password", validators=[DataRequired(), Length(min=8), EqualTo("new_password")])
     submit              = SubmitField("reset password")
 
 class ForgotPasswordForm(FlaskForm):
@@ -41,7 +41,7 @@ class ForgotPasswordForm(FlaskForm):
 
 class VerificationResetPasswordForm(FlaskForm):
     password            = PasswordField("new password", validators=[DataRequired(), Length(min=8)])
-    confirm_password    = PasswordField("confirm new password", validators=[DataRequired(), Length(min=8), EqualTo("new password")])
+    confirm_password    = PasswordField("confirm new password", validators=[DataRequired(), Length(min=8), EqualTo("password")])
     submit              = SubmitField("reset password")
 
 class CreatePostForm(FlaskForm):
@@ -50,5 +50,5 @@ class CreatePostForm(FlaskForm):
     submit              = SubmitField("post")
 
 class EditPostForm(FlaskForm):
-    caption             = TextAreaField("caption")
+    caption             = StringField("caption")
     submit              = SubmitField("update post")

@@ -3,6 +3,9 @@
 {% block content %}
     <div class="profile-card">
         <div class="pfp-container">
+            <div class="profile-photo">
+                <img src="{{ url_for('static', filename='images/profile' + current_user.profile_pic ) }}" alt="Profile Photo">
+            </div>
             <a href="{{ url_for('editprofile') }}" class="edit-profile">Edit Profile</a>
         </div>
 

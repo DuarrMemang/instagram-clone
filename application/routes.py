@@ -86,25 +86,31 @@ def forgotpassword():
 
     return render_template('forgot_password.html', title='ForgotPassword', form=form)
 
-@app.route('/editprofile', methods=['GET', 'POST'])
+@app.route('/edit-profile', methods=['GET', 'POST'])
+@login_required
 def editprofile():
     form = EditProfileForm()
 
     if form.validate_on_submit():
-        user = User(
-            profile = form.profile_pic.data,
-            fullname = form.fullname.data,
-            username = form.username.data,
-            email = form.email.data,
-            password = form.password.data
-        )
-        db.session.add(user)
+        user = User.query.get(current_user.id)
+        if form.username.data != user.username:
+            user.username = form.username.data
+        user.fullname = form.fullname.data
+        user.bio = form.bio.data
+
+        if form.profile_pic.data:
+            pass
+
         db.session.commit()
-        flash('Account created successfully!', 'success')
-        return redirect(url_for('login'))
+        flash('Profile updated', 'success')
+        return redirect(url_for('profile', username=current_user.username))
+    
+    form.username.data = current_user.username
+    form.fullname.data = current_user.fullname
+    form.bio.data = current_user.bio
+    
+    return render_template('edit-profile.html', title=f'Edit {current_user.username} Profile', form=form)
 
-
-    return render_template('edit-profile.html', title='Edit Profile', form=form)
 
 @app.route('/resetpassword')
 def resetpassword():
@@ -114,6 +120,7 @@ def resetpassword():
 @app.route('/verif')
 def verif():
     form = VerificationResetPasswordForm()
+
     return render_template('verif.html', title= 'Verification', form=form)
 
 @app.route('/createpost', methods=['GET', 'POST'])
@@ -140,3 +147,14 @@ def createpost():
 def editpost():
     form = EditPostForm()
     return render_template('edit_post.html', title='Edit post', form=form)
+
+# @app.route('/follow')
+# def follow(follower_id, following_id, status, relation_date):
+#     relation = Relation(follower_id=follower_id, following_id=following_id, status=status, relation_date=relation_date)
+
+#     db.session.add(relation)
+#     db.session.commit()
+
+# @app.route('/unfollow')
+# def unfollow():
+#     pass
