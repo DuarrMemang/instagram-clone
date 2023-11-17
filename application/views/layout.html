@@ -4,45 +4,39 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL" crossorigin="anonymous"></script>
+    <link rel="shortcut icon" href="{{ url_for('static', filename='images/favicon.ico') }}">
     <style>
-        * {
-            padding: 0px;
-            margin: 0px;
+        *{
+            padding:0px;
+            margin:0px;
             box-sizing: border-box;
         }
-
-        body {
-            line-height: normal;
+        body{
+            margin: 0;
+            min-height: 100vh;
+            box-sizing: border-box;
+            position: relative
         }
 
         section.content{
-            min-height: calc(100vh-100px);
-            margin: 0px auto;
+            background-color: rgb(255, 255, 255);
+            margin: 0px;
         }
-
+        header ul li{
+            display: inline-block;
+        }
         div.new-post-box{
             padding: 5px;
         }
-
         div.post-container{
-            border: 1px solid black;
-            margin: 50px auto;
-            text-align: center;
+            border: 1px solid rgb(0, 0, 0);
+            display: flex;
+            align-items: center;
+            justify-content: center;
             padding: 5px;
-        }
 
-        img{
-            width: 200px;
         }
-
-        div.pagination-box{
-            border: 1px solid black;
-            text-align: center;
-            padding: 5px;
-            margin-bottom: 30px;
-        }
-
+        
         .image-container {
             display: flex;
             flex-wrap: wrap;
@@ -67,9 +61,8 @@
         }
 
         .profile-card {
-            border: 1px solid black;
+            /* border: 1px solid black; */
             display: flex;
-            justify-content: space-between;
             width: 100%;
             padding: 20px;
             text-align: center;
@@ -101,43 +94,148 @@
         .profile-info p {
             margin: 5px 0;
         }
-        a.edit-profile{
-            text-decoration: none;
-            color: black;
-            
+        .post{
+            border: 1px solid rgb(0, 0, 0);
+            width: 500px;
+            height: 550px;
+        }
+        .post img{
+            width: 100%;
+        }
+        .post-header{
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-right: 100px;
+
+        }
+        .post-header img{
+            border-radius: 50%;
+        }
+        .post-username{
+            font-size: small;
+        }
+        .post-container{
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            flex-direction: column;
+        }
+        img{
+            width: 200px;
+        }
+        div.pagination-box{
+            border: 1px solid rgb(0, 0, 0);
+            text-align: center;
+            padding: 5px;
+            margin-bottom: 30px;
+        }
+        div.alert-box{
+            color: white;
+        }
+        .Frame {
+            width: 390px;
+            height: 700px; 
+            position: relative;
+            background: black;
+        }
+        .Form {
+            width: 343px;
+            height: auto;
+            left: 10%;
+            top: 35%;
+            transform: translateY(-50%);
+            position: absolute;
+            background: #585757;
+            border-radius: 5px;
+            border: 0.50px rgba(255, 255, 255, 0.20) solid;
+            padding: 10px;
+        }
+        .Rectangle {
+            width: 100%;
+            height: 44px;
+            background: transparent;
+            border: none;
         }
 
+        .Rectangle input {
+            width: 100%;
+            height: 60%;
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 14px;
+            font-family: Roboto;
+            font-weight: 400;
+            word-wrap: break-word;
+            padding: 0;
+            cursor: pointer;
+        }
+
+        .Button {
+            width: 100%;
+            height: 44px;
+            text-align: center;
+            padding: 0; 
+        }
+
+        .btn-outline-info {
+            width: 100%;
+            height: 100%;
+            background: #3797EF;
+            border: none;
+            border-radius: 5px;
+            color: white;
+            font-size: 14px;
+            font-family: Roboto;
+            font-style: italic;
+            font-weight: 700;
+            word-wrap: break-word;
+        }
+
+        div.frame{
+            width: 15rem;
+            border: 1px solid rgb(0, 0, 0);
+            box-shadow: rgba(0, 0, 0, 0.1);
+            display: flex;
+            flex-direction: row;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            text-align: center;
+            margin-left: 40%;
+        }
     </style>
     {% if title %}
-        <title>{{ title }} - Website</title>
+        <title>{{ title }} . website</title>
     {% else %}
         <title>Website</title>
-    {% endif %}
+    {% endif%}
 </head>
 <body>
     <section class="content">
-        {% if title != "Edit Profile" or "Forgot Pasword" or "Reset Password" %}
-            {% if current_user.is_authenticated %}
-                {% include 'components/login_header.html' %}
-            {% else %}
-                {% include 'components/logout_header.html' %}
-            {% endif %}
+        {% if current_user.is_authenticated %}
+            {% include "components/login-header.html" %}
+        {% else %}
+            {% include "components/logout-header.html" %}
         {% endif %}
         <div class="alert-box">
             {% with messages = get_flashed_messages(with_categories=true) %}
-                {% if messages %}
+                {% if messages%}
                     {% for category, message in messages %}
                         <div class="alert alert-{{ category }}">
-                            {{ message }}
+                            {{message}}
                         </div>
                     {% endfor %}
                 {% endif %}
             {% endwith %}
         </div>
-        
+
         {% block content %}{% endblock %}
-        {% include 'components/footer.html' %}
+        {% include "components/footer.html" %}
     </section>
+    
 
 </body>
 </html>

@@ -1,0 +1,34 @@
+{% extends 'layout.html' %}
+
+{% block content %}
+<div class="">
+    <form method="POST" action="">
+        {{ form.hidden_tag() }}
+        <fieldset class="">
+            <legend class="">Daftar</legend>
+
+            <div class="">
+                {{ form.caption.label(class="") }}
+
+                {% if form.caption.errors%}
+                    {{ form.caption(class="") }}
+                    <div class="">
+                        {% for error in form.caption.errors %}
+                            <span>{{ error }}</span>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    {{ form.caption(class="form-control ") }}
+                {% endif %}
+
+            </div>
+
+        </fieldset>
+        <div class="">
+            {{ form.submit(class="btn btn-outline-info") }}
+        </div>
+        
+
+    </form>
+</div>
+{% endblock content %}

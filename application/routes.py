@@ -1,5 +1,5 @@
-from flask import render_template, redirect, url_for, flash, request
-from flask_login import login_user, login_required, logout_user,current_user
+from flask import render_template, redirect, url_for, flash, request, make_response, jsonify
+from flask_login import login_user, login_required, logout_user, current_user
 
 from application import app
 from application.models import *
@@ -9,7 +9,7 @@ from application.utils import save_image
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if current_user.is_authenticated:
-        return redirect(url_for('profile', username=current_user.username))
+        return redirect(url_for('profile',username=current_user.username))
 
     form = LoginForm()
 
@@ -20,7 +20,7 @@ def login():
         user = User.query.filter_by(username=username).first()
         if user and password == user.password:
             login_user(user)
-            return redirect(url_for('profile', username=user.username))
+            return redirect(url_for('profile', username=current_user.username))
         else:
             flash('Invalid username or password', 'error')
 
@@ -40,17 +40,18 @@ def logout():
 @app.route('/<string:username>')
 @login_required
 def profile(username):
-    return render_template('profile.html', title=f'{username} Profile')
+    posts = current_user.posts
+    reverse_posts = posts[::-1]
+    return render_template('profile.html', title=f'{current_user.fullname} Profile', posts=reverse_posts)
 
-@app.route('/')
+@app.route('/', methods=('GET', 'POST'))
 @login_required
 def index():
     page = request.args.get('page', 1, type=int)
     posts = Post.query.filter_by(author_id = current_user.id).order_by(Post.post_date.desc()).paginate(page=page, per_page=5)
 
     return render_template('index.html', title='Home', posts=posts)
-
-@app.route('/signup', methods=["GET", "POST"])
+@app.route('/signup',methods=('GET', 'POST'))
 def signup():
     if current_user.is_authenticated: 
         return redirect(url_for('profile', username=current_user.username))
@@ -77,17 +78,10 @@ def about():
 
 @app.route('/forgotpassword')
 def forgotpassword():
-    if current_user.is_authenticated:
-        return redirect(url_for('profile', username=current_user.username))
     form = ForgotPasswordForm()
-
-    # if form.validate_on_submit:
-    #     email = form.email.data
-
     return render_template('forgot_password.html', title='ForgotPassword', form=form)
 
-@app.route('/edit-profile', methods=['GET', 'POST'])
-@login_required
+@app.route('/editprofile',methods=['GET', 'POST'])
 def editprofile():
     form = EditProfileForm()
 
@@ -109,8 +103,7 @@ def editprofile():
     form.fullname.data = current_user.fullname
     form.bio.data = current_user.bio
     
-    return render_template('edit-profile.html', title=f'Edit {current_user.username} Profile', form=form)
-
+    return render_template('profile_edit.html', title=f'Edit {current_user.username} Profile', form=form)
 
 @app.route('/resetpassword')
 def resetpassword():
@@ -120,10 +113,9 @@ def resetpassword():
 @app.route('/verif')
 def verif():
     form = VerificationResetPasswordForm()
-
     return render_template('verif.html', title= 'Verification', form=form)
 
-@app.route('/createpost', methods=['GET', 'POST'])
+@app.route('/createpost', methods=["GET", "POST"])
 def createpost():
     form = CreatePostForm()
 
@@ -139,22 +131,26 @@ def createpost():
         page = request.args.get('page', 1, type=int)
         posts = Post.query.filter_by(author_id = current_user.id).order_by(Post.post_date.desc()).paginate(page=page, per_page=5)
 
-        return render_template('index.html', posts=posts, form=form)
+        return redirect(url_for('index'))
 
-    return render_template('create-post.html', title='Create Post', form=form)
-
+    return render_template('create_post.html', title='Create Post', form=form)
 @app.route('/editpost')
 def editpost():
     form = EditPostForm()
     return render_template('edit_post.html', title='Edit post', form=form)
 
-# @app.route('/follow')
-# def follow(follower_id, following_id, status, relation_date):
-#     relation = Relation(follower_id=follower_id, following_id=following_id, status=status, relation_date=relation_date)
-
-#     db.session.add(relation)
-#     db.session.commit()
-
-# @app.route('/unfollow')
-# def unfollow():
-#     pass
+@app.route('/like', methods=['GET', 'POST'])
+@login_required
+def like():
+    data = request.json
+    post_id = int(data['postId'])
+    like = Like.query.filter_by(user_id=current_user.id,post_id=post_id).first()
+    if not like:
+        like = Like(user_id=current_user.id, post_id=post_id)
+        db.session.add(like)
+        db.session.commit()
+        return make_response(jsonify({"status" : True}), 200)
+    
+    db.session.delete(like)
+    db.session.commit()
+    return make_response(jsonify({"status" : False}), 200)
