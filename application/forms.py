@@ -17,6 +17,7 @@ class SignUpForm(FlaskForm):
     email               = EmailField("email", validators=[DataRequired(), Email(), exists_email])
     password            = PasswordField("password", validators=[DataRequired(), Length(min=8)])
     confirm_password    = PasswordField("confirm password", validators=[DataRequired(), Length(min=8), EqualTo("password")])
+    recaptcha           = RecaptchaField()
     submit              = SubmitField("sign up")
 
 class EditProfileForm(SignUpForm):
@@ -36,7 +37,6 @@ class ResetPasswordForm(FlaskForm):
 
 class ForgotPasswordForm(FlaskForm):
     email               = EmailField("email", validators=[DataRequired(), not_exists_email])
-    #recaptcha           = RecaptchaField()
     submit              = SubmitField("send link verification to email")
 
 class VerificationResetPasswordForm(FlaskForm):

@@ -1,10 +1,14 @@
 from flask import render_template, redirect, url_for, flash, request, make_response, jsonify
 from flask_login import login_user, login_required, logout_user, current_user
+from werkzeug.utils import secure_filename
+import os
 
 from application import app
 from application.models import *
 from application.forms import *
 from application.utils import save_image
+
+app.config['UPLOAD_FOLDER'] = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'static/images')
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
@@ -44,6 +48,9 @@ def profile(username):
     reverse_posts = posts[::-1]
     return render_template('profile.html', title=f'{current_user.fullname} Profile', posts=reverse_posts)
 
+def allowed_file(filename):
+    return '.' in filename and filename.rsplit('.', 1)[1].lower()
+
 @app.route('/', methods=('GET', 'POST'))
 @login_required
 def index():
@@ -78,7 +85,12 @@ def about():
 
 @app.route('/forgotpassword')
 def forgotpassword():
+    if current_user.is_authenticated: 
+        return redirect(url_for('profile', username=current_user.username))
     form = ForgotPasswordForm()
+    if form.validate_on_submit:
+        flash('Password reset link has been sent to your email', 'success')
+        return redirect(url_for('login'))
     return render_template('forgot_password.html', title='ForgotPassword', form=form)
 
 @app.route('/editprofile',methods=['GET', 'POST'])
@@ -93,7 +105,11 @@ def editprofile():
         user.bio = form.bio.data
 
         if form.profile_pic.data:
-            pass
+            file = form.profile_pic.data
+            if file and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                file.save(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+                user.profile_pic = filename
 
         db.session.commit()
         flash('Profile updated', 'success')
@@ -105,17 +121,35 @@ def editprofile():
     
     return render_template('profile_edit.html', title=f'Edit {current_user.username} Profile', form=form)
 
-@app.route('/resetpassword')
+@app.route('/resetpassword', methods=['GET', 'POST'])
 def resetpassword():
     form = ResetPasswordForm()
+    if form.validate_on_submit():
+        user = User.query.filter_by(password=form.old_password.data).first()
+
+        if user:
+            user.password = form.new_password.data
+            db.session.commit()
+            flash('password reset successfully!', 'success')
+            return redirect(url_for('verif'))
+        else:
+            flash('old password is incorrect!', 'danger')
     return render_template('reset_password.html', title='Reset Password', form=form)
 
-@app.route('/verif')
+@app.route('/verif', methods=['GET', 'POST'])
+@login_required
 def verif():
     form = VerificationResetPasswordForm()
+    if form.validate_on_submit():
+        if form.password.data == form.confirm_password.data:
+            flash('Password matched!', 'success')
+            return redirect(url_for('resetpassword'))
+        else:
+            flash('Password does not match!', 'danger')
     return render_template('verif.html', title= 'Verification', form=form)
 
 @app.route('/createpost', methods=["GET", "POST"])
+@login_required
 def createpost():
     form = CreatePostForm()
 
@@ -135,6 +169,7 @@ def createpost():
 
     return render_template('create_post.html', title='Create Post', form=form)
 @app.route('/editpost')
+@login_required
 def editpost():
     form = EditPostForm()
     return render_template('edit_post.html', title='Edit post', form=form)
