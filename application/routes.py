@@ -62,23 +62,24 @@ def index():
 def signup():
     if current_user.is_authenticated: 
         return redirect(url_for('profile', username=current_user.username))
+
     form = SignUpForm()
 
     if form.validate_on_submit():
+
         user = User(
-            fullname = form.fullname.data,
             username = form.username.data,
+            fullname = form.fullname.data,
             email = form.email.data,
+            profile_pic = save_image(form.profile_pic.data, pfp=True),
             password = form.password.data
         )
         db.session.add(user)
         db.session.commit()
-        flash('Account created successfully!', 'success')
+        flash('Account has been made', 'success')
         return redirect(url_for('login'))
 
-
-    return render_template('signup.html', title="SignUp", form=form)
-    
+    return render_template('signup.html', title='SignUp', form=form)
 @app.route('/about')
 def about():
     return render_template('about.html', title='About')
