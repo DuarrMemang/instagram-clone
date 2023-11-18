@@ -70,27 +70,11 @@
                 {% endif %}
 
             </div>
-
-            <div class="">
-                {{ form.confirm_password.label(class="") }}
-
-                {% if form.confirm_password.errors%}
-                    {{ form.confirm_password(class="") }}
-                    <div class="">
-                        {% for error in form.password.errors %}
-                            <span>{{ error }}</span>
-                        {% endfor %}
-                    </div>
-                {% else %}
-                    {{ form.confirm_password(class="form-control ") }}
-                {% endif %}
-
-            </div>
         </fieldset>
         <div class="">
             {{ form.submit(class="btn btn-outline-info") }}
             <small class="">
-                <a href="{{ url_for('login') }}">Sudah punya akun?</a>
+                <a href="{{ url_for('login') }}">Already have an account?</a>
             </small>
         </div>
         

@@ -12,8 +12,11 @@
         <div class="profile-info">
             <h2>{{current_user.fullname}}</h2>
             <p>{{ current_user.bio }}</p>
-            <p>Following: {{ current_user.following_users|length }}</p>
-            <p>Follower: {{ current_user.follower_users|length }}</p>
+            <div class="statistic-container">
+                <p class="post-count">Posts: {{ current_user.posts|length }}</p>
+                <p class="follow-count">Following: {{ current_user.following_users|length }}</p>
+                <p class="follow-count">Follower: {{ current_user.follower_users|length }}</p>
+            </div>
         </div>
     </div>
 
